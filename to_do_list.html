@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<style>
+    .letter {
+        background: #fff;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+        margin: 26px auto 0;
+        max-width: 550px;
+        min-height: 300px;
+        padding: 24px;
+        position: relative;
+        width: 80%;
+    }
+    
+    .letter:before {
+        content: "";
+        height: 98%;
+        position: absolute;
+        width: 100%;
+        z-index: -1;
+    }
+    
+    .letter:before {
+        background: #fafafa;
+        box-shadow: 0 0 8px rgba(0, 0, 0, 0.2);
+        left: -15px;
+        top: 4px;
+        transform: rotate(-2.5deg);
+    }
+    
+    .flex-container {
+        display: flex;
+        left: 30px;
+    }
+    
+    .flex-container>.line_item {
+        margin: 20px;
+        padding: 5px;
+        font-size: 20px;
+        outline: none;
+        color: #fff;
+        background-color: #0e1f12;
+        border: 0;
+        border-radius: 15px;
+    }
+    
+    .flex-container>.addbutton {
+        font-size: 20px;
+        cursor: pointer;
+        outline: none;
+        color: #fff;
+        background-color: #0e1f12;
+        border: 0;
+        border-radius: 15px;
+    }
+    
+    .textBox {
+        padding: 5px;
+        font-size: 20px;
+        outline: none;
+        color: #fff;
+        background-color: #0e1f12;
+        border: 0;
+        border-radius: 15px;
+    }
+    
+    .addButton:active {
+        background-color: #1e4728;
+        box-shadow: 0 5px;
+        transform: translateY(4px);
+    }
+    
+    .texts {
+        font: italic bold 12px/30px Georgia, serif;
+        color: rgb(52, 114, 58);
+        padding: 10px;
+        text-decoration: underline;
+    }
+    
+    .textDone {
+        text-decoration: line-through red;
+        font: italic bold 12px/30px Georgia, serif;
+        color: rgb(52, 114, 58);
+        padding: 10px;
+    }
+    
+    .deleteButton {
+        border-radius: 5px;
+        margin: 10px;
+    }
+</style>
+<html>
+
+<body>
+
+    <div class="letter">
+
+        <div class="flex-container">
+
+            <div class="line_item"> <input type="text" id="mission" class="textBox"></div>
+            <button onclick="addMission()" class="addbutton" name="">Add mission</button>
+        </div>
+        <div>
+
+
+            <p id="allmissions"></p>
+
+
+        </div>
+    </div>
+
+    <script>
+        class my_mission {
+            constructor(mission_text, mission_date, mission_key) {
+                this.mission_text = mission_text;
+                this.mission_date = mission_date;
+                this.mission_key = mission_key;
+                this.mission_done = false; // false if the mission isn't done.
+            }
+        }
+        var missions = [];
+        var counter_missions = 0;
+
+
+        function showMission() {
+            console.log("show the missions...")
+            text = "";
+
+            for (var i = 0; i < missions.length; i++) {
+                if (missions[i].mission_done) {
+                    text += '<input type="checkbox" checked onClick="checkBox_event(\'' + missions[i].mission_key + '\')" />' + "<label class='textDone' class='texts' >" + missions[i].mission_text + "</label>";
+                    text += '<button class="deleteButton" onclick="deleteMission(\'' + missions[i].mission_key + '\')">delete </button>'
+                    text += `<label>  ${missions[i].mission_date.toLocaleString()}  </label><br>`;
+
+
+
+                } else {
+                    text += '<input type="checkbox"  onClick="checkBox_event(\'' + missions[i].mission_key + '\')" />' + "<label class='texts' >" + missions[i].mission_text + "</label>";
+                    text += '<button  class="deleteButton" onclick="deleteMission(\'' + missions[i].mission_key + '\')">delete </button>';
+                    text += "<label>" + missions[i].mission_date.toLocaleString() + "</label><br>"
+
+                }
+            }
+
+            document.getElementById("allmissions").innerHTML = text;
+
+
+        }
+
+        function deleteMission(delete_key) {
+            console.log("delete the mission...")
+
+            for (var i = 0; i < missions.length; i++) {
+
+                if (missions[i].mission_key == delete_key) {
+                    missions.splice(i, 1);
+                    showMission();
+                    break;
+                }
+
+            }
+        }
+
+        function checkBox_event(checkbox_key) {
+            console.log("checkbox event...");
+
+            for (var i = 0; i < missions.length; i++) {
+
+                if (missions[i].mission_key == checkbox_key) {
+                    missions[i].mission_done = !missions[i].mission_done;
+                    break;
+                }
+
+            }
+            sortMissions();
+            showMission();
+
+
+        }
+
+        function addMission() {
+            console.log("add mission...")
+            var mission = document.getElementById("mission").value;
+            if (mission) { //if there a mission in the textbox.
+                d = new Date();
+
+                new_mission = new my_mission(mission, d, counter_missions);
+                counter_missions++;
+
+                missions.push(new_mission);
+
+                sortMissions();
+                showMission();
+            }
+
+        }
+
+
+        function sort_by_date() {
+            console.log("sort the missions by date...")
+
+            temp_list1 = [];
+            temp_list2 = [];
+            missions.map(function(item) {
+                if (item.mission_done == true)
+                    temp_list1.push(item);
+            })
+
+            missions.map(function(item) {
+                if (item.mission_done == false)
+                    temp_list2.push(item);
+            })
+            temp_list1 = temp_list1.sort((a, b) => a.mission_date - b.mission_date);
+            temp_list2 = temp_list2.sort((a, b) => a.mission_date - b.mission_date);
+            missions = temp_list1;
+            missions = missions.concat(temp_list2);
+        }
+
+        function sortMissions() {
+            console.log("sort the missions...")
+
+            sort_by_date();
+            console.log("sort by what is done...")
+
+            for (var index1 = 0; index1 < missions.length - 1; index1++)
+                for (var index2 = index1 + 1; index2 < missions.length; index2++) {
+                    if (missions[index1].mission_done == false && missions[index2].mission_done == true) {
+                        var temp_mission = missions[index1];
+                        missions[index1] = missions[index2];
+                        missions[index2] = temp_mission;
+                    }
+
+                }
+
+
+        }
+    </script>
+
+</body>
+
+</html>
